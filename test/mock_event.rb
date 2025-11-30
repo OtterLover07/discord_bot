@@ -21,6 +21,7 @@
 # - server: vilken server kanalen tillhör
 # - respond(message): metod för att skicka svar
 #
+
 class MockEvent
   attr_accessor :content, :responses
   attr_reader :user, :channel, :server
@@ -64,17 +65,38 @@ end
 #
 class MockChannel
   attr_reader :name, :id
-  attr_accessor :messages
+  attr_accessor :messages, :embeds
 
   def initialize(name: "test-channel", id: 987654321)
     @name = name
     @id = id
     @messages = []
+    @embeds = []  # Ny! Spara embeds
   end
 
   def send_message(message)
     @messages << message
     message
+  end
+
+  def send_embed(&block)
+    embed = MockEmbed.new
+    block.call(embed)
+    @embeds << embed  # Spara embed för verifiering
+    embed
+  end
+end
+
+# Ny mock klass för embeds
+class MockEmbed
+  attr_accessor :title, :description, :color, :fields
+
+  def initialize
+    @fields = []
+  end
+
+  def add_field(name:, value:, inline: false)
+    @fields << { name: name, value: value, inline: inline }
   end
 end
 
